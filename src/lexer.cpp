@@ -103,7 +103,7 @@ auto Lexer::make_identifier() -> Token {
   }
 
   const std::size_t start = m_current;
-  std::size_t length = 0;
+  std::size_t length = 1;
 
   advance();
 
@@ -132,7 +132,7 @@ auto Lexer::make_number() -> Token {
   }
 
   const std::size_t start = m_current;
-  std::size_t length = 0;
+  std::size_t length = 1;
 
   advance();
 
@@ -153,11 +153,9 @@ auto Lexer::make_number() -> Token {
 }
 
 auto Lexer::make_error() -> Token {
-  using namespace std::literals;
-
   const Token token = {
       .type = TokenType::SpecialError,
-      .lexeme = "unrecognized character"s,
+      .lexeme = "unrecognized character",
       .line = m_line,
       .column = m_column,
   };
