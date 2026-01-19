@@ -17,8 +17,7 @@ int main(int argc, char **argv) {
       break;
     }
 
-    std::cout << "Token{ " << static_cast<int>(token->type) << ", "
-              << token->lexeme << ", " << token->line << ", " << token->column
-              << " }\n";
+    std::cout << "Token{ " << token->type << ", \"" << token->lexeme << "\", "
+              << token->line << ", " << token->column << " }\n";
   }
 }

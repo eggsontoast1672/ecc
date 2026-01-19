@@ -2,11 +2,25 @@
 
 #include <cctype>
 #include <cstddef>
+#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <string_view>
 
 namespace ecc {
+
+auto operator<<(std::ostream &stream, TokenType type) -> std::ostream & {
+  switch (type) {
+#define X(token_type)                                                          \
+  case TokenType::token_type:                                                  \
+    stream << "TokenType::" #token_type;                                       \
+    break;
+    TOKEN_TYPES
+#undef X
+  }
+
+  return stream;
+}
 
 auto check_keyword(std::string_view lexeme) -> TokenType {
   // This implementation is probably not the most efficient, but do I care?
@@ -142,10 +156,10 @@ auto Lexer::make_error() -> Token {
   using namespace std::literals;
 
   const Token token = {
-    .type = TokenType::SpecialError,
-    .lexeme = "unrecognized character"s,
-    .line = m_line,
-    .column = m_column,
+      .type = TokenType::SpecialError,
+      .lexeme = "unrecognized character"s,
+      .line = m_line,
+      .column = m_column,
   };
   advance();
   return token;

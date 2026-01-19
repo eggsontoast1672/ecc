@@ -5,6 +5,19 @@
 #include <stdexcept>
 #include <string_view>
 
+#define TOKEN_TYPES                                                            \
+  X(KeywordInt)                                                                \
+  X(KeywordReturn)                                                             \
+  X(KeywordVoid)                                                               \
+  X(LiteralIdentifier)                                                         \
+  X(LiteralInteger)                                                            \
+  X(SpecialError)                                                              \
+  X(SymbolBraceLeft)                                                           \
+  X(SymbolBraceRight)                                                          \
+  X(SymbolParenLeft)                                                           \
+  X(SymbolParenRight)                                                          \
+  X(SymbolSemicolon)
+
 namespace ecc {
 
 /// The type of a token.
@@ -13,18 +26,13 @@ namespace ecc {
 /// for the parser since it can look at the type of the token rather than
 /// working directly with the lexeme.
 enum class TokenType {
-  KeywordInt,
-  KeywordReturn,
-  KeywordVoid,
-  LiteralIdentifier,
-  LiteralInteger,
-  SpecialError,
-  SymbolBraceLeft,
-  SymbolBraceRight,
-  SymbolParenLeft,
-  SymbolParenRight,
-  SymbolSemicolon,
+#define X(token_type) token_type,
+  TOKEN_TYPES
+#undef X
 };
+
+/// Insert a token type into the stream.
+auto operator<<(std::ostream &stream, TokenType type) -> std::ostream &;
 
 /// Check if the given lexeme is a keyword.
 ///
