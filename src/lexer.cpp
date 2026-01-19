@@ -87,10 +87,10 @@ auto Lexer::skip_whitespace() -> void {
 
 auto Lexer::make_token_and_advance(TokenType type) -> Token {
   const Token token = {
-      TokenType::SymbolBraceLeft,
-      m_source.substr(m_current, 1),
-      m_line,
-      m_column,
+      .type = type,
+      .lexeme = m_source.substr(m_current, 1),
+      .line = m_line,
+      .column = m_column,
   };
   advance();
   return token;
