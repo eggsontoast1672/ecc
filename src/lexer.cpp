@@ -103,6 +103,7 @@ auto Lexer::make_identifier() -> Token {
   }
 
   const std::size_t start = m_current;
+  const std::size_t column = m_column;
   std::size_t length = 1;
 
   advance();
@@ -116,7 +117,7 @@ auto Lexer::make_identifier() -> Token {
           .type = type,
           .lexeme = lexeme,
           .line = m_line,
-          .column = m_column,
+          .column = column,
       };
     }
 
@@ -132,6 +133,7 @@ auto Lexer::make_number() -> Token {
   }
 
   const std::size_t start = m_current;
+  const std::size_t column = m_column;
   std::size_t length = 1;
 
   advance();
@@ -143,7 +145,7 @@ auto Lexer::make_number() -> Token {
           .type = TokenType::LiteralInteger,
           .lexeme = m_source.substr(start, length),
           .line = m_line,
-          .column = m_column,
+          .column = column,
       };
     }
 
