@@ -17,13 +17,9 @@ static auto read_file(const char *path) -> std::string {
   return contents.str();
 }
 
-int main(int argc, char **argv) {
-  if (argc < 2) {
-    std::cout << "Usage: " << argv[0] << " [file]\n";
-    return 1;
-  }
+static auto debug_tokens(std::string_view source) -> void {
+  std::cout << source << '\n';
 
-  const auto source = read_file(argv[1]);
   ecc::Lexer lexer(source);
 
   while (true) {
@@ -35,4 +31,14 @@ int main(int argc, char **argv) {
     std::cout << "Token{ " << token->type << ", \"" << token->lexeme << "\", "
               << token->line << ", " << token->column << " }\n";
   }
+}
+
+auto main(int argc, char **argv) -> int {
+  if (argc < 2) {
+    std::cout << "Usage: " << argv[0] << " [file]\n";
+    return 1;
+  }
+
+  const auto source = read_file(argv[1]);
+  debug_tokens(source);
 }
