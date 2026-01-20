@@ -1,39 +1,41 @@
 #pragma once
 
-#include <memory>
 #include <string_view>
+#include <variant>
 #include <vector>
 
-namespace ecc {
+namespace ecc::ast {
+
+struct Identifier;
+struct IntegerLiteral;
 
 /// The base class for all expression nodes.
-struct Expression {
-public:
-  virtual ~Expression() = 0;
+using Expression = std::variant<Identifier, IntegerLiteral>;
+
+/// An identifier.
+struct Identifier {
+  std::string_view name;
 };
 
 /// An integer literal node.
 ///
 /// This structure represents a literal integer in the code. It evaluates to
 /// itself, nothing too complicated.
-struct IntegerLiteral : public Expression {
+struct IntegerLiteral {
   int value;
-  ~IntegerLiteral() override = default;
 };
 
+struct ReturnStatement;
+
 /// The base class for all statement nodes.
-struct Statement {
-public:
-  virtual ~Statement() = 0;
-};
+using Statement = std::variant<ReturnStatement>;
 
 /// A return statement node.
 ///
 /// Return statements stop execution of the current function and yield the
 /// specified value as the function's return value.
-struct ReturnStatement : public Statement {
-  std::unique_ptr<Expression> return_value;
-  ~ReturnStatement() override = default;
+struct ReturnStatement {
+  Expression return_value;
 };
 
 /// A function node.
@@ -57,4 +59,7 @@ struct Program {
   Function function;
 };
 
-} // namespace ecc
+/// Pretty print the abstract syntax tree.
+auto print_ast(const Program &program) -> void;
+
+} // namespace ecc::ast

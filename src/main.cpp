@@ -3,8 +3,11 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
+#include "ecc/ast.hpp"
 #include "ecc/lexer.hpp"
+#include "ecc/parser.hpp"
 
 static auto read_file(const char *path) -> std::string {
   std::ifstream file(path);
@@ -40,5 +43,18 @@ auto main(int argc, char **argv) -> int {
   }
 
   const auto source = read_file(argv[1]);
-  debug_tokens(source);
+  ecc::Lexer lexer(source);
+  std::vector<ecc::Token> tokens;
+  while (true) {
+    const auto token = lexer.next_token();
+    if (token) {
+      tokens.push_back(*token);
+    } else {
+      break;
+    }
+  }
+
+  ecc::Parser parser(tokens);
+  const auto program = parser.parse_program();
+  ecc::ast::print_ast(program);
 }
