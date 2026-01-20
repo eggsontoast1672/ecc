@@ -5,9 +5,11 @@ project(ECC LANGUAGES CXX)
 add_executable(
   ecc
   include/ecc/ast.hpp
+  include/ecc/compiler.hpp
   include/ecc/lexer.hpp
   include/ecc/parser.hpp
   src/ast.cpp
+  src/compiler.cpp
   src/lexer.cpp
   src/main.cpp
   src/parser.cpp

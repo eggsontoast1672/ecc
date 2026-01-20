@@ -37,15 +37,16 @@ auto Parser::consume_token(TokenType type) -> Token {
   return *current;
 }
 
-auto Parser::parse_program() -> ast::Program {
-  auto function = parse_function();
+auto Parser::parse_program() -> Program {
+  const auto function = parse_function();
   if (has_more_tokens()) {
     throw std::runtime_error("expected end of file");
   }
-  return {.function = std::move(function)};
+
+  return Program{function};
 }
 
-auto Parser::parse_function() -> ast::Function {
+auto Parser::parse_function() -> Function {
   consume_token(TokenType::KeywordInt);
 
   const auto name = parse_identifier();
@@ -55,30 +56,28 @@ auto Parser::parse_function() -> ast::Function {
   consume_token(TokenType::SymbolParenRight);
   consume_token(TokenType::SymbolBraceLeft);
 
-  std::vector<ast::Statement> body;
-  auto statement = parse_statement();
-  body.push_back(std::move(statement));
+  const auto return_statement = parse_statement();
 
   consume_token(TokenType::SymbolBraceRight);
 
-  return {
-      .name = name.name,
-      .body = std::move(body),
+  return Function{
+      .name = name,
+      .body = std::vector{return_statement},
   };
 }
 
-auto Parser::parse_statement() -> ast::Statement {
+auto Parser::parse_statement() -> Statement {
   return parse_return_statement();
 }
 
-auto Parser::parse_return_statement() -> ast::ReturnStatement {
+auto Parser::parse_return_statement() -> ReturnStatement {
   consume_token(TokenType::KeywordReturn);
-  auto return_value = parse_expression();
+  const auto return_value = parse_expression();
   consume_token(TokenType::SymbolSemicolon);
-  return ast::ReturnStatement{return_value};
+  return ReturnStatement{return_value};
 }
 
-auto Parser::parse_expression() -> ast::Expression {
+auto Parser::parse_expression() -> Expression {
   const auto current = get_current();
   if (!current) {
     throw std::runtime_error("expected expression");
@@ -92,12 +91,12 @@ auto Parser::parse_expression() -> ast::Expression {
   }
 }
 
-auto Parser::parse_identifier() -> ast::Identifier {
+auto Parser::parse_identifier() -> Identifier {
   const auto ident = consume_token(TokenType::LiteralIdentifier);
-  return ast::Identifier{ident.lexeme};
+  return Identifier{std::string(ident.lexeme)};
 }
 
-auto Parser::parse_integer_literal() -> ast::IntegerLiteral {
+auto Parser::parse_integer_literal() -> IntegerLiteral {
   const auto current = get_current();
   if (!current || current->type != TokenType::LiteralInteger) {
     throw std::runtime_error("expected integer literal");
@@ -107,7 +106,7 @@ auto Parser::parse_integer_literal() -> ast::IntegerLiteral {
 
   const auto lexeme = std::string(current->lexeme);
   const auto value = std::stoi(lexeme);
-  return ast::IntegerLiteral(value);
+  return IntegerLiteral(value);
 }
 
 } // namespace ecc

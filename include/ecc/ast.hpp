@@ -1,20 +1,22 @@
 #pragma once
 
-#include <string_view>
+#include <string>
 #include <variant>
 #include <vector>
 
-namespace ecc::ast {
+namespace ecc {
 
 struct Identifier;
 struct IntegerLiteral;
 
-/// The base class for all expression nodes.
+/// The expression type.
+///
+/// This type is a big union of all of the possible expression structs.
 using Expression = std::variant<Identifier, IntegerLiteral>;
 
 /// An identifier.
 struct Identifier {
-  std::string_view name;
+  std::string name;
 };
 
 /// An integer literal node.
@@ -46,7 +48,7 @@ struct ReturnStatement {
 /// name can be any identifier, but the linker will generate an error if there
 /// is no `main` function defined.
 struct Function {
-  std::string_view name;
+  Identifier name;
   std::vector<Statement> body;
 };
 
@@ -62,4 +64,4 @@ struct Program {
 /// Pretty print the abstract syntax tree.
 auto print_ast(const Program &program) -> void;
 
-} // namespace ecc::ast
+} // namespace ecc

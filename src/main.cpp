@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "ecc/ast.hpp"
+#include "ecc/compiler.hpp"
 #include "ecc/lexer.hpp"
 #include "ecc/parser.hpp"
 
@@ -56,5 +57,10 @@ auto main(int argc, char **argv) -> int {
 
   ecc::Parser parser(tokens);
   const auto program = parser.parse_program();
-  ecc::ast::print_ast(program);
+  ecc::print_ast(program);
+
+  ecc::Compiler compiler;
+  compiler.compile_program(program);
+  const auto code = compiler.get_code();
+  std::cout << code << '\n';
 }

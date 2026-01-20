@@ -5,7 +5,7 @@
 #include <span>
 #include <variant>
 
-namespace ecc::ast {
+namespace ecc {
 
 class ExpressionPrinter {
 public:
@@ -43,7 +43,7 @@ static auto print_statements(std::span<const Statement> statements) -> void {
 }
 
 static auto print_function(const Function &function) -> void {
-  std::cout << "FUN INT " << function.name << ":\n";
+  std::cout << "FUN INT " << function.name.name << ":\n";
   std::cout << "\tparams: ()\n";
   std::cout << "\tbody:\n";
 
@@ -54,4 +54,4 @@ auto print_ast(const Program &program) -> void {
   print_function(program.function);
 }
 
-} // namespace ecc::ast
+} // namespace ecc

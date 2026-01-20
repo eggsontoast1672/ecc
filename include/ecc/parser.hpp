@@ -1,9 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include <memory>
 #include <optional>
-#include <string_view>
 #include <vector>
 
 #include "ecc/ast.hpp"
@@ -38,19 +36,23 @@ public:
   /// This method will parse a program (a single function declaration). After
   /// that, it asserts that there are no more tokens to be processed. If there
   /// are, an exception is thrown.
-  auto parse_program() -> ast::Program;
+  auto parse_program() -> Program;
 
-  auto parse_function() -> ast::Function;
+  /// Parse a function declaration.
+  ///
+  /// This method parses the return type, function name, parameter list, and
+  /// body of a function.
+  auto parse_function() -> Function;
 
-  auto parse_statement() -> ast::Statement;
+  auto parse_statement() -> Statement;
 
-  auto parse_return_statement() -> ast::ReturnStatement;
+  auto parse_return_statement() -> ReturnStatement;
 
-  auto parse_expression() -> ast::Expression;
+  auto parse_expression() -> Expression;
 
-  auto parse_identifier() -> ast::Identifier;
+  auto parse_identifier() -> Identifier;
 
-  auto parse_integer_literal() -> ast::IntegerLiteral;
+  auto parse_integer_literal() -> IntegerLiteral;
 
 private:
   std::vector<Token> m_tokens;
