@@ -24,20 +24,34 @@ pub struct Function {
     pub body: Vec<Statement>,
 }
 
+/// An operator that can appear in a unary expression.
+#[derive(Clone, Debug, Copy)]
+pub enum UnaryOperator {
+    Compliment,
+    NegateArith,
+    NegateLogical,
+}
+
 /// An expression.
 ///
 /// Expressions are any part of the source code which can evaluate to a value. For example,
 /// literals like integers, floating point numbers, or strings.
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug)]
 pub enum Expression {
     /// An integer literal.
     Integer(i32),
+
+    /// A unary expression.
+    Unary {
+        operator: UnaryOperator,
+        operand: Box<Expression>,
+    },
 }
 
 /// A statement.
 ///
 /// As opposed to expressions, statements *do* something. They are like commands.
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug)]
 pub enum Statement {
     /// A return statement.
     Return(Expression),

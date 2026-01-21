@@ -68,8 +68,8 @@ fn print_parse_error(e: ParseError, source: &str) {
             .find(|(number, _)| *number == token.line - 1)
             .unwrap();
 
-        eprintln!("{:>3} | {}", token.line, line.1);
-        eprint!("    | ");
+        eprintln!(" {:>4} | {}", token.line, line.1);
+        eprint!("      | ");
         for _ in 0..token.column - 1 {
             eprint!(" ");
         }
@@ -80,8 +80,8 @@ fn print_parse_error(e: ParseError, source: &str) {
         eprintln!();
     } else {
         let (number, line) = lines.enumerate().last().unwrap();
-        eprintln!("{:>3} | {}", number, line);
-        eprint!("    | ");
+        eprintln!(" {:>4} | {}", number, line);
+        eprint!("      | ");
         for _ in 0..line.len() {
             eprint!(" ");
         }

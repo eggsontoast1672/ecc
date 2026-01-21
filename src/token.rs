@@ -9,14 +9,20 @@ pub enum TokenKind {
     KeywordInt,
     KeywordReturn,
     KeywordVoid,
+
     LiteralIdentifier,
     LiteralInteger,
+
     SpecialError,
+
+    SymbolBang,
     SymbolBraceLeft,
     SymbolBraceRight,
+    SymbolMinus,
     SymbolParenLeft,
     SymbolParenRight,
     SymbolSemicolon,
+    SymbolTilde,
 }
 
 /// Check if the given lexeme is a keyword.

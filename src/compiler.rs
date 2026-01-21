@@ -13,6 +13,7 @@ pub fn compile_ast(program: &ast::Program) -> String {
     compiler.finish()
 }
 
+#[allow(unused)]
 macro_rules! write_unwrap {
     ($dst:expr, $($arg:tt)*) => {
         write!($dst, $($arg)*).unwrap()
@@ -82,7 +83,7 @@ impl Compiler {
     ///
     /// This method compiles a single statement. The generated assembly (obviously) depends greatly
     /// on the type of statement being compiled.
-    pub fn compile_statement(&mut self, statement: &ast::Statement) {
+    fn compile_statement(&mut self, statement: &ast::Statement) {
         match statement {
             ast::Statement::Return(expr) => self.compile_return(expr),
         }
@@ -94,27 +95,45 @@ impl Compiler {
     /// `%eax` register. In the future, functions will be able to return more than 32-bit integer
     /// values, but this is how it is for now. Naturally, the return statement is terminated with a
     /// `ret` instruction.
-    pub fn compile_return(&mut self, return_value: &ast::Expression) {
-        write_unwrap!(self.assembly, "\tmovl\t");
+    fn compile_return(&mut self, return_value: &ast::Expression) {
         self.compile_expression(return_value);
-        writeln_unwrap!(self.assembly, ", %eax");
         writeln_unwrap!(self.assembly, "\tret");
     }
 
     /// Compile an expression.
     ///
-    /// This method generates the corresponding expression in `at&t` syntax.
-    pub fn compile_expression(&mut self, expr: &ast::Expression) {
+    /// For now, all manipulation of expressions happens in the `eax` register. This is because the
+    /// only meaningful thing that we can do is return an integer from `main`, and since that
+    /// integer must be stored in `eax` according to the calling convention, it is a logical
+    /// register to use for operations.
+    fn compile_expression(&mut self, expr: &ast::Expression) {
         match expr {
             ast::Expression::Integer(value) => self.compile_integer(*value),
+            ast::Expression::Unary { operator, operand } => self.compile_unary(*operator, operand),
         }
     }
 
     /// Compile an integer literal.
     ///
-    /// This method inserts the given integer into the assembly code directly after a dollar (`$`)
-    /// sign, as is expected in `at&t`.
-    pub fn compile_integer(&mut self, value: i32) {
-        write_unwrap!(self.assembly, "${}", value);
+    /// This method loads the given integer into the `eax` register.
+    fn compile_integer(&mut self, value: i32) {
+        writeln_unwrap!(self.assembly, "\tmovl\t${}, %eax", value);
+    }
+
+    /// Compile a unary expression.
+    fn compile_unary(&mut self, operator: ast::UnaryOperator, operand: &ast::Expression) {
+        self.compile_expression(operand);
+
+        use ast::UnaryOperator as UO; // 'Sco Ducks
+
+        match operator {
+            UO::Compliment => writeln_unwrap!(self.assembly, "\tnot\t%eax"),
+            UO::NegateArith => writeln_unwrap!(self.assembly, "\tneg\t%eax"),
+            UO::NegateLogical => {
+                writeln_unwrap!(self.assembly, "\tcmpl\t$0, %eax");
+                writeln_unwrap!(self.assembly, "\tmovl\t$0, %eax");
+                writeln_unwrap!(self.assembly, "\tsete\t%al");
+            }
+        }
     }
 }

@@ -216,11 +216,14 @@ impl<'a> Lexer<'a> {
 
         let current = self.peek()?;
         let token = match current {
+            b'!' => self.make_token_and_advance(TokenKind::SymbolBang),
             b'{' => self.make_token_and_advance(TokenKind::SymbolBraceLeft),
             b'}' => self.make_token_and_advance(TokenKind::SymbolBraceRight),
+            b'-' => self.make_token_and_advance(TokenKind::SymbolMinus),
             b'(' => self.make_token_and_advance(TokenKind::SymbolParenLeft),
             b')' => self.make_token_and_advance(TokenKind::SymbolParenRight),
             b';' => self.make_token_and_advance(TokenKind::SymbolSemicolon),
+            b'~' => self.make_token_and_advance(TokenKind::SymbolTilde),
             _ => {
                 if Self::is_ident_start(current) {
                     self.make_identifier()

@@ -42,6 +42,21 @@ macro_rules! advance_expect {
     };
 }
 
+/// A level of operator precedence.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
+enum Precedence {
+    Prefix,
+}
+
+fn get_prefix_precedence(kind: TokenKind) -> Option<Precedence> {
+    match kind {
+        TokenKind::SymbolBang => Some(Precedence::Prefix),
+        TokenKind::SymbolMinus => Some(Precedence::Prefix),
+        TokenKind::SymbolTilde => Some(Precedence::Prefix),
+        _ => None,
+    }
+}
+
 /// The parser.
 struct Parser {
     tokens: Vec<Token>,
@@ -134,15 +149,53 @@ impl Parser {
     /// This method looks at the next token in the stream and decides based on that what kind of
     /// expression to parse. In the future, this method may take advantage of Pratt parsing.
     fn parse_expression(&mut self) -> ParseResult<ast::Expression> {
-        let token = self.peek();
-        match token.map(|t| t.kind) {
-            Some(TokenKind::LiteralIdentifier) => todo!(),
-            Some(TokenKind::LiteralInteger) => self.parse_integer(),
-            _ => Err(ParseError {
-                token: token.cloned(),
+        let Some(token) = self.peek() else {
+            return Err(ParseError {
+                token: None,
                 message: "expected expression",
-            }),
+            });
+        };
+
+        // We do not have infix expressions yet, so I *think* this is sufficient.
+        self.parse_prefix(token.kind)
+    }
+
+    fn parse_prefix(&mut self, kind: TokenKind) -> ParseResult<ast::Expression> {
+        match kind {
+            TokenKind::LiteralIdentifier => todo!(),
+            TokenKind::LiteralInteger => self.parse_integer(),
+            TokenKind::SymbolBang => self.parse_unary(ast::UnaryOperator::NegateLogical),
+            TokenKind::SymbolMinus => self.parse_unary(ast::UnaryOperator::NegateArith),
+            TokenKind::SymbolParenLeft => self.parse_group(),
+            TokenKind::SymbolTilde => self.parse_unary(ast::UnaryOperator::Compliment),
+            _ => todo!(),
         }
+    }
+
+    /// Parse the next unary expression.
+    ///
+    /// This method parses a unary expression with the given operator. The next token is skipped
+    /// (it is assumed to correspond to the operator passed) and an expression is parsed. From the
+    /// operator and the parsed expression, a new unary expression is constructed.
+    fn parse_unary(&mut self, operator: ast::UnaryOperator) -> ParseResult<ast::Expression> {
+        self.advance();
+        let operand = self.parse_expression()?;
+        Ok(ast::Expression::Unary {
+            operator,
+            operand: Box::new(operand),
+        })
+    }
+
+    /// Parse the next group expression.
+    ///
+    /// This method parses an opening parenthesis, followed by an expression with reset precedence,
+    /// and then a closing parenthesis. This has the effect of considering the parenthesized
+    /// expression as a single unit.
+    fn parse_group(&mut self) -> ParseResult<ast::Expression> {
+        advance_expect!(self, TokenKind::SymbolParenLeft)?;
+        let expr = self.parse_expression()?;
+        advance_expect!(self, TokenKind::SymbolParenRight)?;
+        Ok(expr)
     }
 
     /// Parse the next identifier.
