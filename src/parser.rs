@@ -29,10 +29,13 @@ where
 /// If the pattern did not match, an [`Err`] variant is returned.
 macro_rules! advance_expect {
     ($lexer:expr, $kind:pat) => {
-        match $lexer.peek() {
-            Some(token @ Token { kind: $kind, .. }) => Ok(token),
+        match $lexer.peek().cloned() {
+            Some(token @ Token { kind: $kind, .. }) => {
+                $lexer.advance();
+                Ok(token)
+            }
             token => Err(ParseError {
-                token: token.cloned(),
+                token,
                 message: "expected something different",
             }),
         }
@@ -48,6 +51,10 @@ struct Parser {
 impl Parser {
     fn new(tokens: Vec<Token>) -> Self {
         Self { tokens, current: 0 }
+    }
+
+    fn advance(&mut self) {
+        self.current += 1;
     }
 
     /// Get the token the parser is currently pointing to.

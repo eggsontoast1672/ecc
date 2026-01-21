@@ -92,6 +92,6 @@ impl Compiler {
     }
 
     pub fn compile_integer(&mut self, value: i32) {
-        writeln_unwrap!(self.assembly, "${}", value);
+        write_unwrap!(self.assembly, "${}", value);
     }
 }

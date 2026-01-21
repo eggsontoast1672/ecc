@@ -1,6 +1,7 @@
 // #![warn(missing_docs)]
 
 use std::ffi::OsStr;
+use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
@@ -40,10 +41,13 @@ where
 
     // Link
     let stem = path.file_stem().unwrap();
-    Command::new("ld")
+    let output = Command::new("gcc")
         .args([assembly_file.as_os_str(), OsStr::new("-o"), stem])
         .output()
         .unwrap();
+
+    std::io::stdout().write_all(&output.stdout).unwrap();
+    std::io::stderr().write_all(&output.stderr).unwrap();
 
     // Remove assembly
     std::fs::remove_file(assembly_file).unwrap();
