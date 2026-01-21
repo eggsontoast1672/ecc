@@ -120,8 +120,9 @@ impl<'a> Lexer<'a> {
     /// from the lexer. The token is assumed to be one character long, so a single character
     /// substring is taken from the source.
     ///
-    /// NOTE: This method is marked `[[nodiscard]]`. If you just want to advance the lexer, use
+    /// NOTE: This method is marked `#[must_use]`. If you just want to advance the lexer, use
     /// `advance`.
+    #[must_use]
     fn make_token_and_advance(&mut self, kind: TokenKind) -> Token {
         let bytes = &self.source[self.current..self.current + 1];
         let lexeme = str::from_utf8(bytes).unwrap().to_string();
