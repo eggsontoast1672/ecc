@@ -7,6 +7,8 @@ you the implementation. It walks you through a good sequence of steps to take
 to write the compiler without handing you the answer, which I find very fun. If
 you are interested, definitely give it a go!
 
+[1]: https://norasandler.com/2017/11/29/Write-a-Compiler.html
+
 This compiler targets `x86_64` assembly, sorry arm/powerpc/whatever else users.
 In the event that I implement some minimal subset of the standard library, I
 only plan to support POSIX compliant systems, so sorry Windows users.
