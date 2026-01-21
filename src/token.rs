@@ -36,6 +36,7 @@ pub fn check_keyword(lexeme: &str) -> TokenKind {
 /// Tokens are the smallest unit of lexical information. They are analogous to words in spoken
 /// language. A token contains its kind, the corresponding substring of the source code (the
 /// lexeme), and the line and column info.
+#[derive(Clone, Debug)]
 pub struct Token {
     pub kind: TokenKind,
     pub lexeme: String,

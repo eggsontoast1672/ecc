@@ -2,11 +2,10 @@ use crate::ast;
 use crate::token::{Token, TokenKind};
 
 /// An error that can be generated while parsing.
-#[derive(Debug)]
-pub enum ParseError {
-    ExpectedDifferentToken,
-    ExpectedEndOfFile,
-    General(&'static str),
+#[derive(Clone, Debug)]
+pub struct ParseError {
+    pub token: Option<Token>,
+    pub message: &'static str,
 }
 
 /// A simple type alias for a [`Result`] whose [`Err`] variant contains a [`ParseError`].
@@ -32,7 +31,10 @@ macro_rules! advance_expect {
     ($lexer:expr, $kind:pat) => {
         match $lexer.peek() {
             Some(token @ Token { kind: $kind, .. }) => Ok(token),
-            _ => Err(ParseError::ExpectedDifferentToken),
+            token => Err(ParseError {
+                token: token.cloned(),
+                message: "expected something different",
+            }),
         }
     };
 }
@@ -48,29 +50,25 @@ impl Parser {
         Self { tokens, current: 0 }
     }
 
-    /// Return true if there are more tokens to be processed (e.g. `get_current`
-    /// would not return a null optional), and false otherwise.
-    fn has_more_tokens(&self) -> bool {
-        self.current < self.tokens.len()
-    }
-
     /// Get the token the parser is currently pointing to.
     ///
-    /// If the parser has reached the end of the token stream and is pointing to
-    /// nothing, a null optional is returned.
+    /// If the parser has reached the end of the token stream and is pointing to nothing, a null
+    /// optional is returned.
     fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.current)
     }
 
     /// Parse a program.
     ///
-    /// This method will parse a program (a single function declaration). After
-    /// that, it asserts that there are no more tokens to be processed. If there
-    /// are, an exception is thrown.
+    /// This method will parse a program (a single function declaration). After that, it asserts
+    /// that there are no more tokens to be processed. If there are, an exception is thrown.
     fn parse_program(&mut self) -> ParseResult<ast::Program> {
         let function = self.parse_function()?;
-        if self.has_more_tokens() {
-            Err(ParseError::ExpectedEndOfFile)
+        if let Some(token) = self.peek() {
+            Err(ParseError {
+                token: Some(token.clone()),
+                message: "expected end of file",
+            })
         } else {
             Ok(ast::Program { function })
         }
@@ -78,8 +76,7 @@ impl Parser {
 
     /// Parse a function declaration.
     ///
-    /// This method parses the return type, function name, parameter list, and
-    /// body of a function.
+    /// This method parses the return type, function name, parameter list, and body of a function.
     fn parse_function(&mut self) -> ParseResult<ast::Function> {
         advance_expect!(self, TokenKind::KeywordInt)?;
 
@@ -105,9 +102,13 @@ impl Parser {
     /// This method looks at the next token in the stream and decides based on that what kind of
     /// statement to parse.
     fn parse_statement(&mut self) -> ParseResult<ast::Statement> {
-        match self.peek().map(|t| t.kind) {
+        let token = self.peek();
+        match token.map(|t| t.kind) {
             Some(TokenKind::KeywordReturn) => self.parse_return(),
-            _ => Err(ParseError::General("expected statement")),
+            _ => Err(ParseError {
+                token: token.cloned(),
+                message: "expected statement",
+            }),
         }
     }
 
@@ -126,10 +127,14 @@ impl Parser {
     /// This method looks at the next token in the stream and decides based on that what kind of
     /// expression to parse. In the future, this method may take advantage of Pratt parsing.
     fn parse_expression(&mut self) -> ParseResult<ast::Expression> {
-        match self.peek().map(|t| t.kind) {
+        let token = self.peek();
+        match token.map(|t| t.kind) {
             Some(TokenKind::LiteralIdentifier) => todo!(),
             Some(TokenKind::LiteralInteger) => self.parse_integer(),
-            _ => Err(ParseError::General("expected expression")),
+            _ => Err(ParseError {
+                token: token.cloned(),
+                message: "expected expression",
+            }),
         }
     }
 

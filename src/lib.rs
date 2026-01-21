@@ -1,6 +1,10 @@
 // #![warn(missing_docs)]
 
-use std::{ffi::OsStr, path::Path, process::Command};
+use std::ffi::OsStr;
+use std::path::Path;
+use std::process::Command;
+
+use crate::parser::ParseError;
 
 pub mod ast;
 pub mod compiler;
@@ -10,7 +14,14 @@ pub mod token;
 
 pub fn compile_source(source: &str) -> String {
     let tokens = lexer::tokenize(source);
-    let tree = parser::parse_token_stream(tokens).unwrap();
+    let tree = match parser::parse_token_stream(tokens) {
+        Ok(tree) => tree,
+        Err(e) => {
+            print_parse_error(e, source);
+            std::process::exit(1);
+        }
+    };
+
     compiler::compile_ast(&tree)
 }
 
@@ -36,4 +47,37 @@ where
 
     // Remove assembly
     std::fs::remove_file(assembly_file).unwrap();
+}
+
+fn print_parse_error(e: ParseError, source: &str) {
+    eprintln!("message: {}", e.message);
+    // eprintln!("debug: {:?}", e.token);
+
+    let lines = source.lines();
+
+    if let Some(token) = e.token {
+        let line = lines
+            .enumerate()
+            .find(|(number, _)| *number == token.line - 1)
+            .unwrap();
+
+        eprintln!("{:>3} | {}", token.line, line.1);
+        eprint!("    | ");
+        for _ in 0..token.column - 1 {
+            eprint!(" ");
+        }
+        eprint!("^");
+        for _ in 0..token.lexeme.len() - 1 {
+            eprint!("~");
+        }
+        eprintln!();
+    } else {
+        let (number, line) = lines.enumerate().last().unwrap();
+        eprintln!("{:>3} | {}", number, line);
+        eprint!("    | ");
+        for _ in 0..line.len() {
+            eprint!(" ");
+        }
+        eprintln!("^");
+    }
 }
