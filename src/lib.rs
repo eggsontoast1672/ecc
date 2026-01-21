@@ -1,4 +1,5 @@
-#![warn(missing_docs)]
+// #![warn(missing_docs)]
+#![allow(dead_code)]
 
 use std::ffi::OsStr;
 use std::io::Write;
