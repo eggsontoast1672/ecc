@@ -13,11 +13,11 @@ pub enum ParseError {
 pub type ParseResult<T> = Result<T, ParseError>;
 
 /// Parse a stream of tokens into a program.
-pub fn parse_token_stream<I>(stream: I) -> ParseResult<ast::Program>
+pub fn parse_token_stream<T>(stream: T) -> ParseResult<ast::Program>
 where
-    I: Iterator<Item = Token>,
+    T: IntoIterator<Item = Token>,
 {
-    let tokens: Vec<_> = stream.collect();
+    let tokens: Vec<_> = stream.into_iter().collect();
     let mut parser = Parser::new(tokens);
 
     parser.parse_program()

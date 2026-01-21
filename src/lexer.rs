@@ -2,6 +2,18 @@ use crate::token::Token;
 use crate::token::TokenKind;
 use crate::token::check_keyword;
 
+pub fn tokenize(source: &str) -> Vec<Token> {
+    let bytes = source.as_bytes();
+    let mut lexer = Lexer::new(bytes);
+    let mut tokens = Vec::new();
+
+    while let Some(token) = lexer.next_token() {
+        tokens.push(token);
+    }
+
+    tokens
+}
+
 struct Lexer<'a> {
     source: &'a [u8],
     current: usize,
