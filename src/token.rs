@@ -3,6 +3,7 @@
 /// This enum represents the kind associated with a token. While the lexer separates the source
 /// code into tokens, it also assigns a kind to the lexeme so that the parser can check at a glance
 /// what kind of token it is looking at.
+#[allow(missing_docs)]
 #[derive(Clone, Debug, Copy)]
 pub enum TokenKind {
     KeywordInt,
@@ -38,8 +39,15 @@ pub fn check_keyword(lexeme: &str) -> TokenKind {
 /// lexeme), and the line and column info.
 #[derive(Clone, Debug)]
 pub struct Token {
+    /// The kind of token this is. This information is helpful for the parser.
     pub kind: TokenKind,
+
+    /// The corresponding string in the source code from which this token came.
     pub lexeme: String,
+
+    /// The line of the source code that this token was on.
     pub line: usize,
+
+    /// The column of the source code that this token was on.
     pub column: usize,
 }

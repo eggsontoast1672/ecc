@@ -2,6 +2,10 @@ use crate::token::Token;
 use crate::token::TokenKind;
 use crate::token::check_keyword;
 
+/// Tokenize a string of source code.
+///
+/// This function lexes a string of C source code into individual tokens. If the source code is not
+/// ascii, you will get some very strange results.
 pub fn tokenize(source: &str) -> Vec<Token> {
     let bytes = source.as_bytes();
     let mut lexer = Lexer::new(bytes);

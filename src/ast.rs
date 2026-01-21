@@ -5,6 +5,7 @@
 /// linker will yell at you.
 #[derive(Clone, Debug)]
 pub struct Program {
+    /// The single function of the program.
     pub function: Function,
 }
 
@@ -16,7 +17,10 @@ pub struct Program {
 /// error if there is no `main` function defined.
 #[derive(Clone, Debug)]
 pub struct Function {
+    /// The function's name.
     pub name: String,
+
+    /// The body of the function.
     pub body: Vec<Statement>,
 }
 
@@ -26,6 +30,7 @@ pub struct Function {
 /// literals like integers, floating point numbers, or strings.
 #[derive(Clone, Debug, Copy)]
 pub enum Expression {
+    /// An integer literal.
     Integer(i32),
 }
 
@@ -34,5 +39,6 @@ pub enum Expression {
 /// As opposed to expressions, statements *do* something. They are like commands.
 #[derive(Clone, Debug, Copy)]
 pub enum Statement {
+    /// A return statement.
     Return(Expression),
 }
