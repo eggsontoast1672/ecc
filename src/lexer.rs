@@ -55,44 +55,58 @@ impl<'a> Lexer<'a> {
     /// Get the current character.
     ///
     /// TODO: Write better description.
-    fn get_current(&self) -> Option<u8> {
+    fn peek(&self) -> Option<u8> {
         self.source.get(self.current).copied()
+    }
+
+    fn peek_next(&self) -> Option<u8> {
+        self.source.get(self.current + 1).copied()
     }
 
     /// Advance the lexer by one character.
     ///
-    /// This method advances the lexer state to point to the next character in the source string.
-    /// If the lexer was already at the end of the string, no operation is performed.
-    fn advance(&mut self) {
-        let Some(current) = self.get_current() else {
-            return;
-        };
+    /// This method advances the lexer state to point to the next character in the source string
+    /// and returns that character. If the lexer was already at the end of the string, no operation
+    /// is performed and [`None`] is returned.
+    fn advance(&mut self) -> Option<u8> {
+        let current = self.peek();
+        if let Some(current) = current {
+            self.current += 1;
+            self.column += 1;
 
-        self.current += 1;
-        self.column += 1;
-
-        if current == b'\n' {
-            self.line += 1;
-            self.column = 1;
+            if current == b'\n' {
+                self.line += 1;
+                self.column = 1;
+            }
         }
+
+        current
     }
 
-    /// Skip past any whitespace.
+    /// Skip past any whitespace and comments.
     ///
     /// This method advances the position of the lexer until the current character is not a
-    /// whitespace character. Naturally, if that was already the case when the method was called,
-    /// the lexer's state is not altered.
+    /// whitespace character. If the next non-whitespace character is a slash followed by another
+    /// slash, the comment will be skipped. Naturally, if that was already the case when the method
+    /// was called, the lexer's state is not altered.
     fn skip_whitespace(&mut self) {
-        loop {
-            let Some(current) = self.get_current() else {
-                return;
-            };
-
-            if !current.is_ascii_whitespace() {
-                break;
+        while let Some(c) = self.peek() {
+            if c.is_ascii_whitespace() {
+                self.advance();
+                continue;
             }
 
-            self.advance();
+            if c == b'/'
+                && let Some(b'/') = self.peek_next()
+            {
+                while let Some(c) = self.peek()
+                    && c != b'\n'
+                {
+                    self.advance();
+                }
+            } else {
+                break;
+            }
         }
     }
 
@@ -124,7 +138,7 @@ impl<'a> Lexer<'a> {
     /// This method assumes that the lexer's current character is the start of an identifier. If
     /// not, an exception is thrown.
     fn make_identifier(&mut self) -> Token {
-        let Some(current) = self.get_current() else {
+        let Some(current) = self.peek() else {
             panic!("expected the start of an identifier");
         };
 
@@ -138,7 +152,7 @@ impl<'a> Lexer<'a> {
 
         self.advance();
 
-        while let Some(current) = self.get_current()
+        while let Some(current) = self.peek()
             && Self::is_ident(current)
         {
             length += 1;
@@ -158,7 +172,7 @@ impl<'a> Lexer<'a> {
 
     /// Consume the next number from the source.
     fn make_number(&mut self) -> Token {
-        let Some(true) = self.get_current().map(Self::is_digit) else {
+        let Some(true) = self.peek().map(Self::is_digit) else {
             panic!("expected a digit");
         };
 
@@ -168,7 +182,7 @@ impl<'a> Lexer<'a> {
 
         self.advance();
 
-        while let Some(current) = self.get_current()
+        while let Some(current) = self.peek()
             && Self::is_digit(current)
         {
             length += 1;
@@ -187,20 +201,6 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    /// Create an error token.
-    ///
-    /// Error tokens represent unrecognized characters.
-    fn make_error(&mut self) -> Token {
-        let token = Token {
-            kind: TokenKind::SpecialError,
-            lexeme: "unrecognized character".to_owned(),
-            line: self.line,
-            column: self.column,
-        };
-        self.advance();
-        token
-    }
-
     /// Extract the next token from the lexer.
     ///
     /// This method reads the next token from the source string. If the lexer has already read all
@@ -209,7 +209,7 @@ impl<'a> Lexer<'a> {
     fn next_token(&mut self) -> Option<Token> {
         self.skip_whitespace();
 
-        let current = self.get_current()?;
+        let current = self.peek()?;
         let token = match current {
             b'{' => self.make_token_and_advance(TokenKind::SymbolBraceLeft),
             b'}' => self.make_token_and_advance(TokenKind::SymbolBraceRight),
@@ -222,7 +222,7 @@ impl<'a> Lexer<'a> {
                 } else if Self::is_digit(current) {
                     self.make_number()
                 } else {
-                    self.make_error()
+                    self.make_token_and_advance(TokenKind::SpecialError)
                 }
             }
         };

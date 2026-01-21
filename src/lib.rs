@@ -37,12 +37,14 @@ where
 
     // Write to file
     let assembly_file = path.with_extension("s");
+    eprintln!("writing assembly to {:?}", assembly_file);
     std::fs::write(assembly_file.clone(), assembly).unwrap();
 
     // Link
-    let stem = path.file_stem().unwrap();
+    let stem = path.with_extension("");
+    eprintln!("writing binary to {:?}", stem);
     let output = Command::new("gcc")
-        .args([assembly_file.as_os_str(), OsStr::new("-o"), stem])
+        .args([assembly_file.as_os_str(), OsStr::new("-o"), stem.as_os_str()])
         .output()
         .unwrap();
 
@@ -50,6 +52,7 @@ where
     std::io::stderr().write_all(&output.stderr).unwrap();
 
     // Remove assembly
+    eprintln!("removing {:?}", assembly_file);
     std::fs::remove_file(assembly_file).unwrap();
 }
 
