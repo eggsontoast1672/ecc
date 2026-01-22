@@ -4,8 +4,14 @@
 /// code into tokens, it also assigns a kind to the lexeme so that the parser can check at a glance
 /// what kind of token it is looking at.
 #[allow(missing_docs)]
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq,Debug)]
 pub enum TokenKind {
+    DelimBraceLeft,
+    DelimBraceRight,
+    DelimParenLeft,
+    DelimParenRight,
+    DelimSemicolon,
+
     KeywordInt,
     KeywordReturn,
     KeywordVoid,
@@ -13,16 +19,42 @@ pub enum TokenKind {
     LiteralIdentifier,
     LiteralInteger,
 
-    SpecialError,
+    OperatorBang,
+    OperatorMinus,
+    OperatorPlus,
+    OperatorSlash,
+    OperatorStar,
+    OperatorTilde,
 
-    SymbolBang,
-    SymbolBraceLeft,
-    SymbolBraceRight,
-    SymbolMinus,
-    SymbolParenLeft,
-    SymbolParenRight,
-    SymbolSemicolon,
-    SymbolTilde,
+    SpecialError,
+}
+
+impl std::fmt::Display for TokenKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DelimBraceLeft => write!(f, "'{{'"),
+            Self::DelimBraceRight => write!(f, "'}}'"),
+            Self::DelimParenLeft => write!(f, "'('"),
+            Self::DelimParenRight => write!(f, "')'"),
+            Self::DelimSemicolon => write!(f, "';'"),
+
+            Self::KeywordInt => write!(f, "'int'"),
+            Self::KeywordReturn => write!(f, "'return'"),
+            Self::KeywordVoid => write!(f, "'void'"),
+
+            Self::LiteralIdentifier => write!(f, "identifier"),
+            Self::LiteralInteger => write!(f, "integer literal"),
+
+            Self::OperatorBang => write!(f, "'!'"),
+            Self::OperatorMinus => write!(f, "'-'"),
+            Self::OperatorPlus => write!(f, "'+'"),
+            Self::OperatorSlash => write!(f, "'/'"),
+            Self::OperatorStar => write!(f, "'*'"),
+            Self::OperatorTilde => write!(f, "'~'"),
+
+            Self::SpecialError => write!(f, "error token"),
+        }
+    }
 }
 
 /// Check if the given lexeme is a keyword.

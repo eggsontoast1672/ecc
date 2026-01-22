@@ -1,3 +1,5 @@
+use crate::token::TokenKind;
+
 /// A program.
 ///
 /// This node represents a C program. For now, a program consists of a single function declaration.
@@ -25,11 +27,46 @@ pub struct Function {
 }
 
 /// An operator that can appear in a unary expression.
-#[derive(Clone, Debug, Copy)]
-pub enum UnaryOperator {
+#[derive(Clone, Copy, Debug)]
+pub enum UnaryOp {
     Compliment,
     NegateArith,
     NegateLogical,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum BinaryOp {
+    Plus,
+    Minus,
+    Times,
+    Divide,
+}
+
+impl BinaryOp {
+    /// Get the corresponding operator from the token kind.
+    ///
+    /// This is a useful function during the parsing stage, since it makes more sense to pass
+    /// around token kinds in the parser then to pass around operators. The correspondence is
+    /// pretty intuitive.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ecc::ast::BinaryOp;
+    /// use ecc::token::TokenKind;
+    ///
+    /// assert_eq!(from_token_kind(TokenKind::OperatorPlus), BinaryOp::Plus);
+    /// assert_eq!(from_token_kind(TokenKind::OperatorMinus), BinaryOp::Minus);
+    /// ```
+    pub(crate) fn from_token_kind(kind: TokenKind) -> Option<Self> {
+        match kind {
+            TokenKind::OperatorPlus => Some(Self::Plus),
+            TokenKind::OperatorMinus => Some(Self::Minus),
+            TokenKind::OperatorStar => Some(Self::Times),
+            TokenKind::OperatorSlash => Some(Self::Divide),
+            _ => None,
+        }
+    }
 }
 
 /// An expression.
@@ -37,14 +74,21 @@ pub enum UnaryOperator {
 /// Expressions are any part of the source code which can evaluate to a value. For example,
 /// literals like integers, floating point numbers, or strings.
 #[derive(Clone, Debug)]
-pub enum Expression {
+pub enum Expr {
     /// An integer literal.
     Integer(i32),
 
     /// A unary expression.
     Unary {
-        operator: UnaryOperator,
-        operand: Box<Expression>,
+        operator: UnaryOp,
+        operand: Box<Expr>,
+    },
+
+    /// A binary expression.
+    Binary {
+        operator: BinaryOp,
+        left: Box<Expr>,
+        right: Box<Expr>,
     },
 }
 
@@ -54,5 +98,5 @@ pub enum Expression {
 #[derive(Clone, Debug)]
 pub enum Statement {
     /// A return statement.
-    Return(Expression),
+    Return(Expr),
 }

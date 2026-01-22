@@ -216,14 +216,17 @@ impl<'a> Lexer<'a> {
 
         let current = self.peek()?;
         let token = match current {
-            b'!' => self.make_token_and_advance(TokenKind::SymbolBang),
-            b'{' => self.make_token_and_advance(TokenKind::SymbolBraceLeft),
-            b'}' => self.make_token_and_advance(TokenKind::SymbolBraceRight),
-            b'-' => self.make_token_and_advance(TokenKind::SymbolMinus),
-            b'(' => self.make_token_and_advance(TokenKind::SymbolParenLeft),
-            b')' => self.make_token_and_advance(TokenKind::SymbolParenRight),
-            b';' => self.make_token_and_advance(TokenKind::SymbolSemicolon),
-            b'~' => self.make_token_and_advance(TokenKind::SymbolTilde),
+            b'{' => self.make_token_and_advance(TokenKind::DelimBraceLeft),
+            b'}' => self.make_token_and_advance(TokenKind::DelimBraceRight),
+            b'(' => self.make_token_and_advance(TokenKind::DelimParenLeft),
+            b')' => self.make_token_and_advance(TokenKind::DelimParenRight),
+            b';' => self.make_token_and_advance(TokenKind::DelimSemicolon),
+            b'!' => self.make_token_and_advance(TokenKind::OperatorBang),
+            b'-' => self.make_token_and_advance(TokenKind::OperatorMinus),
+            b'+' => self.make_token_and_advance(TokenKind::OperatorPlus),
+            b'/' => self.make_token_and_advance(TokenKind::OperatorSlash),
+            b'*' => self.make_token_and_advance(TokenKind::OperatorStar),
+            b'~' => self.make_token_and_advance(TokenKind::OperatorTilde),
             _ => {
                 if Self::is_ident_start(current) {
                     self.make_identifier()

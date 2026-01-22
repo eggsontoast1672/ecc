@@ -27,4 +27,6 @@ only plan to support POSIX compliant systems, so sorry Windows users.
     - [ ] Explain *why*, not *what*
     - [ ] Add comments for **all** public items!
     - [ ] ...and all private items too, if I feel like it
-- [ ] Clean up whatever is going on in `lib.rs`
+- [X] Clean up whatever is going on in `lib.rs`
+- [ ] Allow for `utf8` source code
+- [ ] Turn `ecc::lexer::Lexer` into an iterator
