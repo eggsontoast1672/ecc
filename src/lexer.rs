@@ -223,6 +223,7 @@ impl<'a> Lexer<'a> {
             b';' => self.make_token_and_advance(TokenKind::DelimSemicolon),
             b'!' => self.make_token_and_advance(TokenKind::OperatorBang),
             b'-' => self.make_token_and_advance(TokenKind::OperatorMinus),
+            b'%' => self.make_token_and_advance(TokenKind::OperatorPercent),
             b'+' => self.make_token_and_advance(TokenKind::OperatorPlus),
             b'/' => self.make_token_and_advance(TokenKind::OperatorSlash),
             b'*' => self.make_token_and_advance(TokenKind::OperatorStar),

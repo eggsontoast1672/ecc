@@ -71,6 +71,7 @@ fn get_infix_precedence(kind: TokenKind) -> Precedence {
         TokenKind::OperatorMinus => Precedence::Sum,
         TokenKind::OperatorStar => Precedence::Product,
         TokenKind::OperatorSlash => Precedence::Product,
+        TokenKind::OperatorPercent => Precedence::Product,
         _ => Precedence::Lowest,
     }
 }
@@ -229,6 +230,7 @@ impl Parser {
             TokenKind::OperatorPlus => self.parse_binary(ast::BinaryOp::Plus, left),
             TokenKind::OperatorSlash => self.parse_binary(ast::BinaryOp::Divide, left),
             TokenKind::OperatorStar => self.parse_binary(ast::BinaryOp::Times, left),
+            TokenKind::OperatorPercent => self.parse_binary(ast::BinaryOp::Mod, left),
             _ => Err(ParseError::at_token(token, "expected infix operator")),
         }
     }
@@ -236,7 +238,7 @@ impl Parser {
     /// Parse the next unary expression.
     ///
     /// This method parses a unary expression with the given operator. The next token is skipped
-    /// (it is assumed to correspond to the operator passed) and an expression is parsed. From the
+    /// (it is assumed to correspond to the operator passed) and an expr3 % (2 + 1ession is parsed. From the
     /// operator and the parsed expression, a new unary expression is constructed.
     fn parse_unary(&mut self, op: ast::UnaryOp) -> ParseResult<ast::Expr> {
         let token = self.advance_expect_anything("expected unary operator")?;

@@ -1,5 +1,3 @@
-use crate::token::TokenKind;
-
 /// A program.
 ///
 /// This node represents a C program. For now, a program consists of a single function declaration.
@@ -40,33 +38,7 @@ pub enum BinaryOp {
     Minus,
     Times,
     Divide,
-}
-
-impl BinaryOp {
-    /// Get the corresponding operator from the token kind.
-    ///
-    /// This is a useful function during the parsing stage, since it makes more sense to pass
-    /// around token kinds in the parser then to pass around operators. The correspondence is
-    /// pretty intuitive.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use ecc::ast::BinaryOp;
-    /// use ecc::token::TokenKind;
-    ///
-    /// assert_eq!(from_token_kind(TokenKind::OperatorPlus), BinaryOp::Plus);
-    /// assert_eq!(from_token_kind(TokenKind::OperatorMinus), BinaryOp::Minus);
-    /// ```
-    pub(crate) fn from_token_kind(kind: TokenKind) -> Option<Self> {
-        match kind {
-            TokenKind::OperatorPlus => Some(Self::Plus),
-            TokenKind::OperatorMinus => Some(Self::Minus),
-            TokenKind::OperatorStar => Some(Self::Times),
-            TokenKind::OperatorSlash => Some(Self::Divide),
-            _ => None,
-        }
-    }
+    Mod,
 }
 
 /// An expression.

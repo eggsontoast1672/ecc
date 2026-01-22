@@ -21,6 +21,7 @@ pub enum TokenKind {
 
     OperatorBang,
     OperatorMinus,
+    OperatorPercent,
     OperatorPlus,
     OperatorSlash,
     OperatorStar,
@@ -47,6 +48,7 @@ impl std::fmt::Display for TokenKind {
 
             Self::OperatorBang => write!(f, "'!'"),
             Self::OperatorMinus => write!(f, "'-'"),
+            Self::OperatorPercent => write!(f, "'%'"),
             Self::OperatorPlus => write!(f, "'+'"),
             Self::OperatorSlash => write!(f, "'/'"),
             Self::OperatorStar => write!(f, "'*'"),

@@ -148,9 +148,20 @@ impl Compiler {
             BO::Plus => writeln_unwrap!(self.assembly, "\taddl\t%ecx, %eax"),
             BO::Times => writeln_unwrap!(self.assembly, "\timul\t%ecx, %eax"),
             BO::Minus => writeln_unwrap!(self.assembly, "\tsubl\t%ecx, %eax"),
+
+            // The `idivl` instruction interprets `[edx:eax]` as a single 64-bit register, so
+            // before we execute `idivl`, we must sign extend `eax` into `edx`, which is exactly
+            // what `cdq` does.
             BO::Divide => {
                 writeln_unwrap!(self.assembly, "\tcdq");
                 writeln_unwrap!(self.assembly, "\tidivl\t%ecx");
+            }
+
+            // Same story here as for division, but the remainder is stored in the `edx` register.
+            BO::Mod => {
+                writeln_unwrap!(self.assembly, "\tcdq");
+                writeln_unwrap!(self.assembly, "\tidivl\t%ecx");
+                writeln_unwrap!(self.assembly, "\tmovl\t%edx, %eax");
             }
         }
     }
